@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <title>2048</title>
+  <link rel=stylesheet href="2048.css">
+  <script src="2048.js"></script>
+  <script src="https://unpkg.com/react@latest/dist/react.js"></script>
+  <script src="https://unpkg.com/react-dom@latest/dist/react-dom.js"></script>
+  <script src="https://unpkg.com/babel-standalone@6.15.0/babel.min.js"></script>
+</head>
+
+<body>
+  <div id="container"></div>
+  <script type="text/babel">
+
+    class Game extends React.Component {
+      constructor(props){
+        super(props);
+        this.keyPressed = this.keyPressed.bind(this);
+        this.buttonPressed = this.buttonPressed.bind(this);
+        this.state = { grid: props.grid };
+      }
+      componentDidMount() {
+        document.body.addEventListener('keyup', this.keyPressed);
+      }
+
+      buttonPressed(direction){
+        // console.log(direction);
+        game = move(game, direction);
+        this.setState({grid: game.rows});
+      }
+
+      keyPressed(e){
+        //console.log(e.keyCode);
+        if(e.keyCode == 38){
+          //up
+          game = move(game, "up");
+        }else if(e.keyCode == 37) {
+          //left
+          game = move(game, "left");
+        }else if(e.keyCode == 39){
+          //right
+          game = move(game, "right");
+        }else if(e.keyCode == 40){
+          //down
+          game = move(game, "down");
+        }
+        this.setState({grid: game.rows});
+      }
+
+      render(){
+        var grid = this.state.grid;
+        var rows = grid.map(function(row,index){return <Row rowArray={row} key={index}/>});
+        return (
+          <div>
+            <div>{rows}</div>
+            <Controls callback={this.buttonPressed} />
+          </div>
+        );
+      }
+    }
+
+    function Row(props){
+      var rowArray = props.rowArray;
+      var cells = rowArray.map(function(cellValue,index){return <Cell value={cellValue} key={index} />});
+      return (
+        <div className="Row">
+          {cells}
+        </div>
+      );
+    }
+
+    function Cell(props){
+      var cellValue = props.value;
+      return (
+        <div className={'Cell val-' + cellValue}>{cellValue}</div>
+      );
+    }
+
+    function Controls(props){
+      return (
+        <div className="controls">
+          <Button direction="up" callback={props.callback}/>
+          <div>
+            <Button direction="left" callback={props.callback}></Button>
+            <Button direction="down" callback={props.callback}></Button>
+            <Button direction="right" callback={props.callback}></Button>
+          </div>
+        </div>
+      );
+    }
+
+    function Button(props){
+      function onClicked(e){
+        props.callback(props.direction);
+      }
+      return <button onClick={onClicked}></button>
+    }
+
+    var game = create_game();
+    var container = document.getElementById("container");
+    ReactDOM.render(<Game grid={game.rows} />,container);
+
+  </script>
+
+</body>
+</html>
